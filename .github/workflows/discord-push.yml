@@ -1,0 +1,28 @@
+name: Notify Discord on Push
+
+on: [push]
+
+jobs:
+  discord-notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Discord Webhook
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+                \"username\": \"GitHub Actions\",
+                \"embeds\": [{
+                  \"title\": \"📦 Push to ${GITHUB_REPO}\",
+                  \"description\": \"${GITHUB_ACTOR} pushed to \`${GITHUB_REF}\`\n[View Commit](https://github.com/${GITHUB_REPO}/commit/${GITHUB_SHA})\",
+                  \"color\": 5814783
+                }]
+              }" \
+          $DISCORD_WEBHOOK_URL
